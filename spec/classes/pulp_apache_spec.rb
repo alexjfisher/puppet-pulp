@@ -395,6 +395,26 @@ Alias /pulp/nodes/content /var/www/pulp/nodes/content
 ')
       end
     end
+
+    describe 'with ldap parameters' do
+      let :pre_condition do
+        "class {'pulp':
+           ldap_url           => 'ldaps://ad.example.com?sAMAccountName',
+           ldap_bind_dn       => 'cn=pulp,dc=example,dc=com',
+           ldap_bind_password => 'BIND_PASSWORD',
+          }"
+      end
+
+      it 'should configure apache for LDAP authentication' do
+        is_expected.to contain_concat__fragment('pulp-https-directories')
+        content = catalogue.resource('concat::fragment', 'pulp-https-directories').send(:parameters)[:content]
+        expect(content).to include('AuthLDAPURL "ldaps://ad.example.com?sAMAccountName"')
+        expect(content).to include('AuthLDAPBindDN "cn=pulp,dc=example,dc=com"')
+        expect(content).to include('AuthLDAPBindPassword "BIND_PASSWORD"')
+        expect(content).to include('AuthLDAPRemoteUserAttribute sAMAccountName')
+      end
+
+    end
   end
 
 end
