@@ -1,3 +1,5 @@
+require 'pathname'
+
 Puppet::Type.type(:pulp_rpmbind).provide(:consumer) do
   desc 'Bind/unbind to an RPM repo'
 
@@ -5,9 +7,22 @@ Puppet::Type.type(:pulp_rpmbind).provide(:consumer) do
   commands consumer: '/bin/pulp-consumer'
   commands grep:     '/bin/grep'
 
+  def self.repo_file
+    default = '/etc/yum.repos.d/pulp.repo'
+    begin
+      repo_file = grep('-oP', '^repo_file:\s+\K.*', '/etc/pulp/consumer/consumer.conf')
+    rescue Puppet::ExecutionFailure => e
+      Puppet.debug "Couldn't find repo_file configuration in /etc/pulp/consumer/consumer.conf -> #{e.inspect}"
+      return default
+    end
+    return repo_file if (Pathname.new repo_file).absolute?
+    Puppet.debug "repo_file #{repo_file} is not an absolute path.  Using default"
+    default
+  end
+
   def self.instances
     begin
-      binds = grep('-oP', '^\[\K.*(?=\]$)', '/etc/yum.repos.d/pulp.repo')
+      binds = grep('-oP', '^\[\K.*(?=\]$)', repo_file)
     rescue Puppet::ExecutionFailure => e
       Puppet.debug "grepping for binds had an error -> #{e.inspect}"
       return {}
