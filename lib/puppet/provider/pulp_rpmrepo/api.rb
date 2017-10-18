@@ -102,6 +102,11 @@ Puppet::Type.type(:pulp_rpmrepo).provide(:api, :parent => PuppetX::Pulp::RepoPro
   end
 
   def params_hash
+    # Some properties have defaults that use to be set in the type definition.
+    # We actually should only use these defaults when creating new resources, so the defaults are now in the provider (in this method).
+    # params_hash is called from the parent provider both when creating or updating a resource (but we're not told which).
+    # If we are updating a resource @property_hash will have already been populated by 'instances' and we should use the
+    # current value instead of the default if resource[:property] is nil (not set).
     {
       '--allowed-keys'             => resource[:allowed_keys],
       '--auth-ca'                  => resource[:auth_ca],
@@ -110,7 +115,7 @@ Puppet::Type.type(:pulp_rpmrepo).provide(:api, :parent => PuppetX::Pulp::RepoPro
       '--basicauth-user'           => resource[:basicauth_user],
       '--checksum-type'            => resource[:checksum_type],
       '--description'              => resource[:description],
-      '--display-name'             => resource[:display_name],
+      '--display-name'             => resource[:display_name] || @property_hash[:display_name] || resource[:name],
       '--download-policy'          => resource[:download_policy],
       '--feed'                     => resource[:feed],
       '--feed-ca-cert'             => resource[:feed_ca_cert],
@@ -126,17 +131,17 @@ Puppet::Type.type(:pulp_rpmrepo).provide(:api, :parent => PuppetX::Pulp::RepoPro
       '--proxy-pass'               => resource[:proxy_pass],
       '--proxy-port'               => resource[:proxy_port],
       '--proxy-user'               => resource[:proxy_user],
-      '--relative-url'             => resource[:relative_url],
-      '--remove-missing'           => resource[:remove_missing],
-      '--repoview'                 => resource[:repoview],
-      '--require-signature'        => resource[:require_signature],
+      '--relative-url'             => resource[:relative_url]      || @property_hash[:relative_url]      || resource[:name],
+      '--remove-missing'           => resource[:remove_missing]    || @property_hash[:remove_missing]    || false,
+      '--repoview'                 => resource[:repoview]          || @property_hash[:repoview]          || false,
+      '--require-signature'        => resource[:require_signature] || @property_hash[:require_signature] || false,
       '--retain-old-count'         => resource[:retain_old_count],
-      '--serve-http'               => resource[:serve_http],
-      '--serve-https'              => resource[:serve_https],
+      '--serve-http'               => resource[:serve_http]  || @property_hash[:serve_http]  || false,
+      '--serve-https'              => resource[:serve_https] || @property_hash[:serve_https] || true,
       '--skip'                     => resource[:skip],
       '--updateinfo_checksum_type' => resource[:updateinfo_checksum_type],
-      '--validate'                 => resource[:validate],
-      '--verify-feed-ssl'          => resource[:verify_feed_ssl],
+      '--validate'                 => resource[:validate]        || @property_hash[:validate]        || false,
+      '--verify-feed-ssl'          => resource[:verify_feed_ssl] || @property_hash[:verify_feed_ssl] || false
     }
   end
 end

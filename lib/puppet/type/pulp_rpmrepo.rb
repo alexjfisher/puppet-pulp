@@ -60,9 +60,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
   newproperty(:display_name) do
     desc "user-readable display name (may contain i18n characters)"
-    defaultto do
-      @resource[:name]
-    end
   end
 
   newproperty(:description) do
@@ -86,8 +83,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:skip, :array_matching => :all) do
@@ -107,8 +102,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:feed_cert) do
@@ -159,12 +152,10 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
   newproperty(:remove_missing) do
     desc 'if "true", units that were previously in the external
-    feed but are no longer found will be removed from the  repository'
+    feed but are no longer found will be removed from the repository'
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:retain_old_count) do
@@ -179,11 +170,7 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
   newproperty(:relative_url) do
     desc "relative path the repository will be served from. Only
     alphanumeric characters, forward slashes, underscores and
-    dashes are allowed. It defaults to the relative path of
-    the feed URL"
-    defaultto do
-      @resource[:name]
-    end
+    dashes are allowed."
   end
 
   newproperty(:serve_http) do
@@ -191,8 +178,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:serve_https) do
@@ -200,8 +185,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :true
   end
 
   newproperty(:checksum_type) do
@@ -213,7 +196,7 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
   end
 
   newproperty(:generate_sqlite) do
-    desc 'if "true", sqlite files will be generated for the  repository metadata during publish'
+    desc 'if "true", sqlite files will be generated for the repository metadata during publish'
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
@@ -247,8 +230,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:require_signature) do
@@ -256,8 +237,6 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
 
     newvalues(:true, :false)
     munge { |value| @resource.munge_boolean_to_symbol(value) }
-
-    defaultto :false
   end
 
   newproperty(:allowed_keys, :array_matching => :all) do
