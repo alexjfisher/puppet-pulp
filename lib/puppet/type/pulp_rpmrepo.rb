@@ -34,6 +34,21 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     defaultto :present
   end
 
+  def munge_boolean_to_symbol(value)
+    # insync? doesn't work with actual booleans
+    # see https://tickets.puppetlabs.com/browse/PUP-2368
+    value = value.downcase if value.respond_to? :downcase
+
+    case value
+    when true, :true, 'true', :yes, 'yes'
+      :true
+    when false, :false, 'false', :no, 'no'
+      :false
+    else
+      raise ArgumentError, 'expected a boolean value'
+    end
+  end
+
   newparam(:name, :namevar => true) do
     desc "repo-id: uniquely identifies the rpm repo"
   end
@@ -65,9 +80,13 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     desc "URL of the external source repository to sync"
   end
 
-  newproperty(:validate, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:validate) do
     desc 'if "true", the size and checksum of each synchronized file will
     be verified against the repo metadata'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
@@ -83,8 +102,12 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     verify the external repo server's SSL certificate"
   end
 
-  newproperty(:verify_feed_ssl, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:verify_feed_ssl) do
     desc 'if "true", the feed\'s SSL certificate will be verified against the feed_ca_cert'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
@@ -134,9 +157,13 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     end
   end
 
-  newproperty(:remove_missing, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:remove_missing) do
     desc 'if "true", units that were previously in the external
     feed but are no longer found will be removed from the  repository'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
@@ -159,13 +186,21 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     end
   end
 
-  newproperty(:serve_http, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:serve_http) do
     desc 'if "true", the repository will be served over HTTP'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
-  newproperty(:serve_https, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:serve_https) do
     desc 'if "true", the repository will be served over HTTPS'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :true
   end
 
@@ -177,8 +212,11 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     desc "GPG key used to sign and verify packages in the repository"
   end
 
-  newproperty(:generate_sqlite, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:generate_sqlite) do
     desc 'if "true", sqlite files will be generated for the  repository metadata during publish'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
   end
 
   newproperty(:host_ca) do
@@ -201,16 +239,24 @@ Puppet::Type.newtype(:pulp_rpmrepo) do
     desc "type of checksum to use during updateinfo.xml generation"
   end
 
-  newproperty(:repoview, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:repoview) do
     desc 'if "true", static HTML files will be generated
     during publish by the repoview tool for faster
     browsing of the repository. Enables
     --generate-sqlite flag.'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
-  newproperty(:require_signature, :boolean => true, :parent => Puppet::Property::Boolean) do
+  newproperty(:require_signature) do
     desc 'if "Require that imported packages should be signed.'
+
+    newvalues(:true, :false)
+    munge { |value| @resource.munge_boolean_to_symbol(value) }
+
     defaultto :false
   end
 
